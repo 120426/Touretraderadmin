@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading App - Master Control Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #0f111a;
+            --bg-card: #161925;
+            --primary: #2962ff;
+            --green: #00e676;
+            --red: #ff3d00;
+            --warning: #ff9800;
+            --text-main: #ffffff;
+            --text-sub: #8e94a6;
+            --input-bg: #202438;
+            --border: #262b44;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; padding: 20px; }
+        
+        .container { max-width: 1300px; margin: 0 auto; }
+        header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 30px; }
+        .brand { font-size: 24px; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; position: relative; }
+        .card-title { font-size: 16px; font-weight: 600; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; color: var(--text-sub); border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
+        .card-title i { color: var(--primary); }
+
+        .input-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 12px; color: var(--text-sub); }
+        input, select, textarea { width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--border); color: white; border-radius: 8px; outline: none; font-size: 14px; }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+        
+        .btn { border: none; outline: none; padding: 10px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; justify-content: center; align-items: center; gap: 6px; font-size: 13px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-green { background: var(--green); color: black; }
+        .btn-red { background: var(--red); color: white; }
+        .btn-warning { background: var(--warning); color: black; }
+        .btn:active { transform: scale(0.98); }
+
+        .status-banner { display: flex; justify-content: space-between; align-items: center; background: var(--input-bg); padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border); }
+        .status-info h4 { font-size: 13px; }
+        .status-info p { font-size: 11px; color: var(--text-sub); }
+
+        /* USER DIRECTORY */
+        .user-list-wrapper { max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .user-row-card { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+        .user-row-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .user-row-info h4 { font-size: 14px; color: #fff; }
+        .user-row-info p { font-size: 11px; color: var(--text-sub); }
+        .user-badge { font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; }
+        .badge-active { background: rgba(0, 230, 118, 0.15); color: var(--green); }
+        .badge-banned { background: rgba(255, 61, 0, 0.15); color: var(--red); }
+        
+        .user-row-balances { display: flex; gap: 15px; margin-bottom: 10px; padding: 6px; background: rgba(0,0,0,0.15); border-radius: 4px; }
+        .user-row-balances div { font-size: 12px; font-weight: bold; }
+
+        .user-actions { display: flex; gap: 8px; align-items: center; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; }
+        .user-actions input { padding: 6px; font-size: 12px; max-width: 90px; }
+
+        /* TRANSACTIONS SYSTEM */
+        .req-list-wrapper { display: flex; flex-direction: column; gap: 12px; max-height: 480px; overflow-y: auto; }
+        .req-card { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+        .req-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px; }
+        .req-type { font-size: 12px; font-weight: bold; padding: 2px 6px; border-radius: 4px; }
+        .type-deposit { background: rgba(0, 230, 118, 0.15); color: var(--green); }
+        .type-withdraw { background: rgba(255, 152, 0, 0.15); color: var(--warning); }
+        .req-body { font-size: 12px; color: var(--text-sub); display: flex; flex-direction: column; gap: 4px; }
+        .req-body strong { color: #fff; }
+        .req-img { width: 100%; max-height: 120px; object-fit: contain; background: #000; border-radius: 4px; margin-top: 4px; border: 1px solid #333; cursor: pointer; }
+        .req-actions { display: flex; gap: 8px; margin-top: 4px; }
+
+        #toast { position: fixed; bottom: 30px; right: 30px; background: var(--primary); color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 3000; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        #toast.show { opacity: 1; transform: translateY(-10px); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="brand"><i class="fa-solid fa-gauge-high"></i> Master Control Dashboard</div>
+            <div style="font-size: 12px; color: var(--text-sub);"><i class="fa-solid fa-circle green-text"></i> System Active</div>
+        </header>
+
+        <div class="grid">
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-sliders"></i> Global System Overrides</div>
+                
+                <div class="status-banner">
+                    <div class="status-info">
+                        <h4 id="market-status-text">Market Operation</h4>
+                        <p>Toggle trade execution locks</p>
+                    </div>
+                    <button class="btn btn-green" id="btn-toggle-market" onclick="toggleMarketState()">Open Market</button>
+                </div>
+
+                <div class="status-banner">
+                    <div class="status-info">
+                        <h4 id="mode-status-text">Execution Mode</h4>
+                        <p>Automated user pattern loop tracking</p>
+                    </div>
+                    <button class="btn btn-primary" id="btn-toggle-mode" onclick="toggleAutoModeState()">Enable Auto Mode</button>
+                </div>
+
+                <div class="input-group">
+                    <label>Manual Graph Direction Trend</label>
+                    <select id="select-graph-trend" onchange="updateGraphTrend(this.value)">
+                        <option value="MEDIUM">MEDIUM (Natural Fluctuations)</option>
+                        <option value="UP">UP (Bullish Override)</option>
+                        <option value="DOWN">DOWN (Bearish Override)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-bullhorn"></i> System Broadcast & Link Matrix</div>
+                <div class="input-group" style="margin-bottom:10px;">
+                    <label>Ticker Ribbon Notification Notice</label>
+                    <input type="text" id="broadcast-msg" placeholder="Enter dashboard text statement details...">
+                </div>
+                <button class="btn btn-primary" style="width:100%; margin-bottom:15px;" onclick="updateBroadcast()"><i class="fa-solid fa-rotate"></i> Sync Notification Text</button>
+
+                <div class="input-group" style="margin-bottom:10px;">
+                    <label>Payment Gateway Link</label>
+                    <input type="text" id="paylink-default" placeholder="Enter master payment redirection url path...">
+                </div>
+                <button class="btn btn-green" style="width:100%;" onclick="updatePaymentGateway()"><i class="fa-solid fa-floppy-disk"></i> Update Payment Link</button>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-headset"></i> Support Channel Routing Channels</div>
+                <div class="input-group">
+                    <label>WhatsApp Support Phone Number</label>
+                    <input type="text" id="wa-phone" placeholder="e.g., 2349156570133">
+                </div>
+                <div class="input-group">
+                    <label>Telegram Support Username</label>
+                    <input type="text" id="tg-username" placeholder="e.g., ARABTECH001 (Do not include @)">
+                </div>
+                <button class="btn btn-primary" style="width:100%;" onclick="updateSupportGateways()"><i class="fa-solid fa-circle-check"></i> Sync Communication Settings</button>
+            </div>
+        </div>
+
+        <div class="grid" style="grid-template-columns: 1.2fr 1fr;">
+            
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-users"></i> Account Profiles Directory (<span id="user-count-badge">0</span> Users)</div>
+                <div class="user-list-wrapper" id="users-directory-target">
+                    <p style="text-align:center; color:var(--text-sub); margin-top:20px;">Fetching global profile arrays...</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Transaction Request Approvals Queues</div>
+                <div class="req-list-wrapper" id="requests-queue-target">
+                    <p style="text-align:center; color:var(--text-sub); margin-top:20px;">No pending actions available.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="toast">Action Applied</div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBRhYqJ3195U0VoBDFY-hGN9FVVuD2OJ9s",
+            authDomain: "opaypro-8629a.firebaseapp.com",
+            databaseURL: "https://opaypro-8629a-default-rtdb.firebaseio.com",
+            projectId: "opaypro-8629a",
+            storageBucket: "opaypro-8629a.firebasestorage.app",
+            messagingSenderId: "521490802972",
+            appId: "1:521490802972:web:9491c2d489bd7e52eaf2d9",
+            measurementId: "G-EV8DV7DDM4"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let globalAdminSettings = {};
+
+        // Run administrative engines immediately on configuration mount
+        window.onload = function() {
+            initSettingsEngine();
+            syncUsersDirectory();
+            syncRequestsApprovalQueue();
+        };
+
+        function initSettingsEngine() {
+            db.ref('adminSettings').on('value', snapshot => {
+                const data = snapshot.val() || {};
+                globalAdminSettings = data;
+
+                const isMarketOpen = data.tradingStatus === true;
+                const btnMarket = document.getElementById('btn-toggle-market');
+                document.getElementById('market-status-text').innerText = isMarketOpen ? "Market: OPEN" : "Market: CLOSED";
+                btnMarket.innerText = isMarketOpen ? "Close Market" : "Open Market";
+                btnMarket.className = isMarketOpen ? "btn btn-red" : "btn btn-green";
+
+                const isAutoMode = data.autoTradeMode === true;
+                const btnMode = document.getElementById('btn-toggle-mode');
+                document.getElementById('mode-status-text').innerText = isAutoMode ? "Execution: AUTO MODE" : "Execution: MANUAL";
+                btnMode.innerText = isAutoMode ? "Switch to Manual Mode" : "Switch to Auto Mode";
+                btnMode.className = isAutoMode ? "btn btn-warning" : "btn btn-primary";
+
+                if(data.graphTrend) document.getElementById('select-graph-trend').value = data.graphTrend;
+                document.getElementById('broadcast-msg').value = data.notificationMsg || "";
+                document.getElementById('paylink-default').value = data.paymentLink || "";
+
+                // Parse out values back into clean readable phone or user nodes strings
+                if(data.whatsapp) {
+                    const rawWa = data.whatsapp.replace("https://wa.me/", "");
+                    document.getElementById('wa-phone').value = rawWa;
+                }
+                if(data.telegram) {
+                    const rawTg = data.telegram.replace("https://t.me/", "");
+                    document.getElementById('tg-username').value = rawTg;
+                }
+            });
+        }
+
+        // Real-time synchronization loop mapping structural properties inside directories
+        function syncUsersDirectory() {
+            db.ref('users').on('value', snapshot => {
+                const target = document.getElementById('users-directory-target');
+                target.innerHTML = "";
+                
+                if(!snapshot.exists()) {
+                    target.innerHTML = `<p style="text-align:center; color:var(--text-sub); margin-top:20px;">No registered user metrics found inside active nodes.</p>`;
+                    document.getElementById('user-count-badge').innerText = "0";
+                    return;
+                }
+
+                let count = 0;
+                snapshot.forEach(child => {
+                    count++;
+                    const uid = child.key;
+                    const u = child.val();
+
+                    const isBanned = u.blocked === true;
+                    const badgeClass = isBanned ? "badge-banned" : "badge-active";
+                    const badgeText = isBanned ? "Blocked" : "Active";
+                    const banBtnText = isBanned ? "Unban Account" : "Ban Account";
+                    const banBtnClass = isBanned ? "btn-green" : "btn-red";
+
+                    const row = document.createElement('div');
+                    row.className = "user-row-card";
+                    row.innerHTML = `
+                        <div class="user-row-header">
+                            <div class="user-row-info">
+                                <h4>${u.name || 'Anonymous'}</h4>
+                                <p>${u.email || 'No Email Provided'}</p>
+                            </div>
+                            <span class="user-badge ${badgeClass}">${badgeText}</span>
+                        </div>
+                        <div class="user-row-balances">
+                            <div class="green-text">Main: NGN ${(parseFloat(u.balance || 0)).toFixed(2)}</div>
+                            <div style="color:var(--warning)">Winnings: NGN ${(parseFloat(u.winningBalance || 0)).toFixed(2)}</div>
+                        </div>
+                        <div class="user-actions">
+                            <input type="number" id="amt-${uid}" placeholder="NGN Vector">
+                            <button class="btn btn-green" style="padding:4px 8px; font-size:11px;" onclick="modifyBalanceDirectly('${uid}', 'ADD')"><i class="fa-solid fa-plus"></i> Credit</button>
+                            <button class="btn btn-warning" style="padding:4px 8px; font-size:11px;" onclick="modifyBalanceDirectly('${uid}', 'REDUCE')"><i class="fa-solid fa-minus"></i> Debit</button>
+                            <button class="btn ${banBtnClass}" style="padding:4px 8px; font-size:11px; margin-left:auto;" onclick="toggleBan('${uid}', ${isBanned})">${banBtnText}</button>
+                        </div>
+                    `;
+                    target.appendChild(row);
+                });
+                document.getElementById('user-count-badge').innerText = count;
+            });
+        }
+
+        // Live multi-node transaction watcher targeting sub logs inside pipeline systems
+        function syncRequestsApprovalQueue() {
+            db.ref('users').on('value', snapshot => {
+                const target = document.getElementById('requests-queue-target');
+                target.innerHTML = "";
+                let activePendingItemsCount = 0;
+
+                if(snapshot.exists()) {
+                    snapshot.forEach(userSnapshot => {
+                        const uid = userSnapshot.key;
+                        const userProfile = userSnapshot.val();
+                        
+                        if(userProfile.history) {
+                            Object.keys(userProfile.history).forEach(itemKey => {
+                                const request = userProfile.history[itemKey];
+                                
+                                // Process and render ONLY requests that are currently status pinned as PENDING
+                                if(request.status === 'PENDING' && (request.type === 'DEPOSIT' || request.type === 'WITHDRAW')) {
+                                    activePendingItemsCount++;
+                                    const card = document.createElement('div');
+                                    card.className = "req-card";
+
+                                    const isDeposit = request.type === 'DEPOSIT';
+                                    const typeClass = isDeposit ? "type-deposit" : "type-withdraw";
+                                    const dateStr = request.time ? new Date(request.time).toLocaleString() : 'Date Untracked';
+
+                                    let uniqueBodyMarkup = "";
+                                    if(isDeposit) {
+                                        uniqueBodyMarkup = `
+                                            <div>Account/Ref Source: <strong>${request.ngn || 'Unspecified'}</strong></div>
+                                            ${request.screenshot ? `<div>Verification Asset:<br><img src="${request.screenshot}" class="req-img" onclick="window.open('${request.screenshot}', '_blank')"></div>` : '<div>No verification snapshot attached.</div>'}
+                                        `;
+                                    } else {
+                                        uniqueBodyMarkup = `<div>Target Destination Transfer Code: <strong>${request.upi || 'Missing Specifications'}</strong></div>`;
+                                    }
+
+                                    card.innerHTML = `
+                                        <div class="req-header">
+                                            <span class="req-type ${typeClass}">${request.type}</span>
+                                            <span style="font-size:11px; color:var(--text-sub);">${dateStr}</span>
+                                        </div>
+                                        <div class="req-body">
+                                            <div>User Account Reference: <strong>${userProfile.name} (${userProfile.email})</strong></div>
+                                            <div>Required Value Amount: <strong class="green-text">NGN ${parseFloat(request.amount || 0).toFixed(2)}</strong></div>
+                                            ${uniqueBodyMarkup}
+                                        </div>
+                                        <div class="req-actions">
+                                            <button class="btn btn-green" style="flex:1;" onclick="processRequestAction('${uid}', '${itemKey}', '${request.type}', 'APPROVE', ${request.amount})"><i class="fa-solid fa-check"></i> Approve</button>
+                                            <button class="btn btn-red" style="flex:1;" onclick="processRequestAction('${uid}', '${itemKey}', '${request.type}', 'REJECT', ${request.amount})"><i class="fa-solid fa-xmark"></i> Reject</button>
+                                        </div>
+                                    `;
+                                    target.appendChild(card);
+                                }
+                            });
+                        }
+                    });
+                }
+
+                if(activePendingItemsCount === 0) {
+                    target.innerHTML = `<p style="text-align:center; color:var(--text-sub); margin-top:40px;"><i class="fa-solid fa-square-check" style="font-size:24px; color:var(--green); margin-bottom:8px; display:block;"></i>All clear! No requests pending.</p>`;
+                }
+            });
+        }
+
+        // Core transactional mechanics processor tracking adjustments rules
+        function processRequestAction(userUid, requestKey, requestType, decision, valueAmount) {
+            const historyPathRef = db.ref(`users/${userUid}/history/${requestKey}`);
+            const globalDepositsPathRef = db.ref(`deposits/${requestKey}`);
+            const globalWithdrawalsPathRef = db.ref(`withdrawals/${requestKey}`);
+            
+            const finalStatusString = decision === 'APPROVE' ? 'SUCCESS' : 'REJECTED';
+
+            if(requestType === 'DEPOSIT') {
+                if(decision === 'APPROVE') {
+                    // Credit amount to the user's main ledger balance
+                    db.ref(`users/${userUid}/balance`).transaction(currentBalance => {
+                        return (parseFloat(currentBalance || 0)) + parseFloat(valueAmount);
+                    });
+                }
+                
+                historyPathRef.update({ status: finalStatusString });
+                globalDepositsPathRef.once('value', snap => {
+                    if(snap.exists()) globalDepositsPathRef.update({ status: finalStatusString });
+                });
+                showNotificationToast(`Deposit Execution Processed: ${decision}`);
+
+            } else if(requestType === 'WITHDRAW') {
+                if(decision === 'REJECT') {
+                    // Refund requested funds back into user's balance records if transaction fails
+                    db.ref(`users/${userUid}`).transaction(userNode => {
+                        if (userNode) {
+                            userNode.balance = (parseFloat(userNode.balance || 0)) + parseFloat(valueAmount);
+                            userNode.winningBalance = (parseFloat(userNode.winningBalance || 0)) + parseFloat(valueAmount);
+                        }
+                        return userNode;
+                    });
+                }
+                
+                historyPathRef.update({ status: finalStatusString });
+                globalWithdrawalsPathRef.once('value', snap => {
+                    if(snap.exists()) globalWithdrawalsPathRef.update({ status: finalStatusString });
+                });
+                showNotificationToast(`Withdrawal Processing Fixed: ${decision}`);
+            }
+        }
+
+        // Direct ledger updates tracking variables
+        function modifyBalanceDirectly(userUid, operationalMode) {
+            const inputField = document.getElementById(`amt-${userUid}`);
+            const deltaValue = parseFloat(inputField.value);
+            if(isNaN(deltaValue) || deltaValue <= 0) return showNotificationToast("Provide Valid Numerical Delta Vector");
+
+            db.ref(`users/${userUid}/balance`).transaction(currentBalance => {
+                const baseVal = parseFloat(currentBalance || 0);
+                if(operationalMode === 'ADD') return baseVal + deltaValue;
+                return Math.max(0, baseVal - deltaValue);
+            }).then(() => {
+                inputField.value = "";
+                showNotificationToast("Ledger Balance Updated");
+            });
+        }
+
+        function toggleBan(userUid, currentBanStateValue) {
+            db.ref(`users/${userUid}`).update({ blocked: !currentBanStateValue })
+              .then(() => showNotificationToast("Access Configuration Altered"));
+        }
+
+        // System state modification wrappers
+        function toggleMarketState() {
+            const currentStatus = globalAdminSettings.tradingStatus === true;
+            db.ref('adminSettings').update({ tradingStatus: !currentStatus })
+              .then(() => showNotificationToast("Market Environment Altered"));
+        }
+
+        function toggleAutoModeState() {
+            const currentMode = globalAdminSettings.autoTradeMode === true;
+            db.ref('adminSettings').update({ autoTradeMode: !currentMode })
+              .then(() => showNotificationToast("Volatility Profiler Readjusted"));
+        }
+
+        function updateGraphTrend(val) {
+            db.ref('adminSettings').update({ graphTrend: val })
+              .then(() => showNotificationToast("Manual Multipliers Direction Synced"));
+        }
+
+        function updateBroadcast() {
+            const msg = document.getElementById('broadcast-msg').value;
+            db.ref('adminSettings').update({ notificationMsg: msg })
+              .then(() => showNotificationToast("Ribbon Alert Synced"));
+        }
+
+        function updatePaymentGateway() {
+            const link = document.getElementById('paylink-default').value.trim();
+            db.ref('adminSettings').update({ paymentLink: link })
+              .then(() => showNotificationToast("Master Link Route Synced"));
+        }
+
+        function updateSupportGateways() {
+            const waRaw = document.getElementById('wa-phone').value.trim();
+            const tgRaw = document.getElementById('tg-username').value.trim();
+
+            const waFormatted = waRaw !== "" ? "https://wa.me/" + waRaw : "";
+            const tgFormatted = tgRaw !== "" ? "https://t.me/" + tgRaw : "";
+
+            db.ref('adminSettings').update({ whatsapp: waFormatted, telegram: tgFormatted })
+              .then(() => showNotificationToast("Channels Updated Effectively"));
+        }
+
+        function showNotificationToast(msg) {
+            const element = document.getElementById('toast');
+            element.innerText = msg;
+            element.classList.add('show');
+            setTimeout(() => element.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>
